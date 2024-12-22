@@ -1,17 +1,15 @@
 spring:
-  port: 8082
-  application:
-    name: gateway
   security:
     oauth2:
-      client:
-        registration:
-          keycloak:
-            client-id: UI
-            provider: keycloak
-            client-secret: VCY9aaCeTUFcdKEzTVN36e4BlD60CPtm
-            client-name: KEYCLOAK
-            scope: openid
-        provider:
-          keycloak:
-            issuer-uri: http://localhost:9080/realms/task-tamer
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:9080/realms/task-tamer
+          jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
+server:
+  port: 8080
+
+jwt:
+  auth:
+    converter:
+      resource-id: task-tamer-rest-api
+      principle-attribute: preferred_username
