@@ -14,7 +14,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
-public class WebSecurityConfiguration {
+public class WebSecurityConfig {
     private final JwtAuthConverter jwtAuthConverter;
 
     @Bean
@@ -25,15 +25,16 @@ public class WebSecurityConfiguration {
         http.oauth2ResourceServer(oauth2ResourceServer ->
                 oauth2ResourceServer.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthConverter)));
 
+
         http.authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-                .requestMatchers("/user/**").hasRole("client_user")
-                .requestMatchers("/admin/**").hasRole("client_admin")
-                .requestMatchers("/public/**").permitAll()
+                .requestMatchers("/api/v1/auth/**").permitAll()
+                .requestMatchers("/swagger-ui/**").permitAll()
+                .requestMatchers("/v3/api-docs/**").permitAll()
                 .anyRequest().authenticated());
 
         http.headers(Customizer.withDefaults());
         http.anonymous(Customizer.withDefaults());
-        http.csrf(Customizer.withDefaults());
+        http.csrf(csrf -> csrf.disable());
 
         return http.build();
     }

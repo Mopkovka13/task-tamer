@@ -13,3 +13,7 @@ jwt:
     converter:
       resource-id: task-tamer-rest-api
       principle-attribute: preferred_username
+    keycloak:
+      client-url: http://localhost:9080/realms/task-tamer/protocol/openid-connect/
+      client-id: task-tamer-rest-api
+      client-secret: GsCfC7K1PeIxZxfVlTThv33FwtjUdJ48

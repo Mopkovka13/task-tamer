@@ -21,7 +21,6 @@
 		<java.version>17</java.version>
 
 		<lombok.version>1.18.30</lombok.version>
-		<swagger.version>2.2.21</swagger.version>
 		<springdoc.version>2.3.0</springdoc.version>
 	</properties>
 
@@ -54,11 +53,6 @@
 		</dependency>
 
 		<!-- Swagger -->
-		<dependency>
-			<groupId>io.swagger.core.v3</groupId>
-			<artifactId>swagger-core</artifactId>
-			<version>${swagger.version}</version>
-		</dependency>
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
