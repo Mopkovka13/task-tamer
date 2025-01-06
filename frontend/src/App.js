@@ -4,6 +4,8 @@ import { Routes, Route } from 'react-router-dom';
 import AuthForm from './components/AuthForm';
 import RegistrationForm from './components/RegistrationForm';
 import Home from './pages/Home';
+import TempAuth from './pages/TempAuth';
+import RequireAuth from './components/RequireAuth';
 
 const theme = createTheme({
   palette: {
@@ -18,9 +20,17 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline /> {/* Применяем глобальные стили */}
       <Routes>
-        <Route path="/" element={<Home />} />
+      <Route path="/" element={<TempAuth />} />
         <Route path="/auth" element={<AuthForm />} />
         <Route path="/register" element={<RegistrationForm />} />
+        <Route
+          path="/home"
+          element={
+            <RequireAuth>
+              <Home />
+            </RequireAuth>
+          }
+        />
       </Routes>
     </ThemeProvider>
   );

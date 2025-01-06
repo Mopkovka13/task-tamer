@@ -5,8 +5,9 @@ import GoogleIcon from '@mui/icons-material/Google';  // Импортируем 
 const GoogleLoginButton = () => {
   const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
     `client_id=${process.env.REACT_APP_GOOGLE_CLIENT_ID}&` +
+    //`redirect_uri=http://localhost:9080/realms/task-tamer/broker/google/endpoint&` +
     `redirect_uri=http://localhost:3000&` +
-    `response_type=code&` +
+    `response_type=token&` +
     `scope=openid%20email%20profile`;
 
   return (
