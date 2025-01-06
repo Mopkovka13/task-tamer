@@ -3,10 +3,7 @@ package org.mopkovka.gateway.service.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.mopkovka.gateway.service.JwtAuthProvider;
-import org.mopkovka.gateway.web.auth.dto.RefreshTokenRequest;
-import org.mopkovka.gateway.web.auth.dto.RefreshTokenResponse;
-import org.mopkovka.gateway.web.auth.dto.SignInRequest;
-import org.mopkovka.gateway.web.auth.dto.SignInResponse;
+import org.mopkovka.gateway.web.auth.dto.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -29,16 +26,14 @@ public class KeycloakJwtAuthProviderImpl implements JwtAuthProvider {
     @Value("${jwt.auth.keycloak.client-secret}")
     private String clientSecret;
 
+    @Value("${jwt.auth.keycloak.redirect-url}")
+    private String redirectUrl;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final RestTemplate restTemplate = new RestTemplate();
     private final HttpHeaders headers = new HttpHeaders();
     private final String tokenEndpoint = "token";
 
-    /**
-     *
-     * @param request
-     * @return
-     */
     @Override
     public SignInResponse getAccessToken(SignInRequest request) throws IOException {
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
@@ -124,4 +119,50 @@ public class KeycloakJwtAuthProviderImpl implements JwtAuthProvider {
             throw new IOException("An unexpected error occurred while refreshing access token: " + e.getMessage(), e);
         }
     }
+
+    @Override
+    public OAuthTokenResponse oauth2googleToken(OAuthTokenRequest request) throws IOException {
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.add("client_id", clientId);
+        body.add("client_secret", clientSecret);
+        body.add("grant_type", "urn:ietf:params:oauth:grant-type:token-exchange");
+        body.add("subject_token_type", "urn:ietf:params:oauth:token-type:access_token");
+        body.add("subject_issuer", "google");
+        body.add("subject_token", request.accessToken());
+
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(
+                    clientUrl + tokenEndpoint,
+                    HttpMethod.POST,
+                    new HttpEntity<>(body, headers),
+                    String.class
+            );
+
+            if (!response.getStatusCode().is2xxSuccessful()) {
+                throw new IOException("Failed to exchange authorization code for tokens: " + response.getStatusCode());
+            }
+
+            String responseBody = response.getBody();
+            if (responseBody == null) {
+                throw new IOException("Empty response body");
+            }
+
+            JsonNode jsonNode = objectMapper.readTree(responseBody);
+
+            return OAuthTokenResponse.builder()
+                    .accessToken(jsonNode.get("access_token").asText()) // Access token Keycloak
+                    .refreshToken(jsonNode.get("refresh_token").asText()) // Refresh token Keycloak
+                    .expiresIn(jsonNode.get("expires_in").asLong()) // Время истечения
+                    .build();
+        } catch (HttpClientErrorException e) {
+            throw new IOException("Client error occurred while exchanging authorization code: " + e.getMessage(), e);
+        } catch (HttpServerErrorException e) {
+            throw new IOException("Server error occurred while exchanging authorization code: " + e.getMessage(), e);
+        } catch (Exception e) {
+            throw new IOException("An unexpected error occurred while exchanging authorization code: " + e.getMessage(), e);
+        }
+    }
+
 }
