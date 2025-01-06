@@ -38,6 +38,7 @@ services:
       KC_DB_USERNAME: postgres
       KC_DB_PASSWORD: postgres_secret
       KC_HEALTH_ENABLED: "true"
+      KC_FEATURES: token-exchange,admin-fine-grained-authz
     healthcheck:
       test:
         [ "CMD-SHELL", "{ exec 3<>/dev/tcp/localhost/9000 && echo -e \"GET /health/ready HTTP/1.1\nhost: localhost:9000\n\" >&3 && timeout --preserve-status 1 cat <&3 | grep -m 1 -q 'status.*UP'; }" ]
